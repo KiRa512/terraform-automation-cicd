@@ -48,3 +48,5 @@ destroy:
     - terraform init
     - terraform destroy -auto-approve
   when: manual  # Prevent automatic destruction on main
+
+  
