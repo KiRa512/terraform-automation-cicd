@@ -1,0 +1,45 @@
+image: hashicorp/terraform:latest
+
+variables:
+    AWS_ACCESS_KEY_ID: ${MY_AWS_ACCESS_KEY}
+    AWS_SECRET_ACCESS_KEY: {MY_AWS_SECRET_ACCESS_KEY}
+    AWS_DEFAULT_REGION: "us-east-1"
+
+before_script:
+  - terraform --version
+  - terraform init
+
+stages:
+  - validate
+  - plan
+  - apply
+  - destroy
+
+validate:
+  stage: validate
+  script:
+    - terraform validate
+
+plan:
+  stage: plan
+  script: 
+    - terraform plan -out=planfile
+  artifacts:
+    paths:
+      - planfile
+
+apply:
+  stage: apply
+  dependencies: 
+    - plan
+  script:
+    - terraform init
+    - terraform apply -input=false planfile
+  when: manual  # Prevent automatic apply on main
+
+destroy:
+  stage: destroy
+  script: 
+    - terraform init
+    - terraform destroy -auto-approve
+  when: manual  # Prevent automatic destruction on main
